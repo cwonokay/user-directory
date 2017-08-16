@@ -17,8 +17,9 @@ app.get("/",function(req,res){
 
 });
 
-app.get("/index/:id", function(req,res){
-  send
+app.get("/listing/:id", function(req,res){
+  let user = users.users[req.params.id]
+  res.render("listing", users);
 });
 // Create server and listen on port 3000
 app.listen(3000,function(){
