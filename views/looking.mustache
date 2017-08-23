@@ -1,0 +1,15 @@
+<div class="container">
+  {{#users}}
+  <div class="robots">
+    <a href="/looking/{{id}}">looking</a>
+    <div class="image">
+      <img src={{avatar}}>
+    </div>
+    <div class="name">
+      {{#name}}
+      <p>{{name}}</p>
+      {{/name}}
+    </div>
+  </div>
+  {{/users}}
+</div>

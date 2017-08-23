@@ -1,4 +1,4 @@
-body{
+/*body{
 
 }
 .container{
@@ -8,4 +8,32 @@ body{
 }
 .robots{
   flex-basis: 20%;
+}*/
+body {
+  background-color: rgb(24, 134, 230);
+  font-size: 25px;
+  color: white;
+}
+.container {
+   display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  font-family: monospace;
+  /*border: 2px solid black;*/
+ }
+.robots {
+  flex-basis: 20%;
+  border:  4px solid white;
+  border-radius: 9px;
+  padding: 5px;
+  margin: 15px;
+  background-color: rgb(249, 201, 251);
+  color: black;
+  font-family: serif;
+  display:
+  align-items: center;
+}
+.robots:hover {
+  background-color: rgb(17, 228, 241);
+  color: white;
 }
