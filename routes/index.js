@@ -1,42 +1,123 @@
 const express = require("express");
 const router = express.Router();
 const app = express();
+const Robots = require("../models/robots");
+const mongoose = require("mongoose");
+const passport = require('passport');
+mongoose.connect("mongodb://localhost:27017/robots");
 let data =[];
 
+router.get('/', function(req, res){
 
-const getListing = function(req,res,next){
-  let MongoClient = require("mongodb").MongoClient;
-  let assert  = require("assert");
+    Robots.find({}).sort("name")
+    .then(function(robots){
+     console.log(robots);
+     req.session.users = robots;
+     res.render("login", {robots: req.session.users})
+    })
+    .catch(function(err){
+      console.log(err);
+    })
+  }
+);
+
+router.get('/index', function(req, res){
+  console.log("we made it");
+  res.render("index")
+})
+
+router.post('/login', function(req, res){
+console.log("we here");
+  res.redirect("/index")
+});
 
 
 
-  let url='mongodb://localhost:27017/robots';
-  MongoClient.connect(url, function(err,db) {
-    assert.equal(null,err)
+router.post('/signup', function(req, res){
+  Robots.create({
+    username: req.body.username,
+    passwordHash: req.body.password,
+    name: req.body.name,
+    email: req.body.email,
+    job: req.body.job,
+    university: req.body.university,
+    company: req.body.company,
+    skills: req.body.skills,
+    phone: req.body.phone,
+    address:{
+      street_num: req.body.streetNum,
+      Street_name: req.body.streetName,
+      city: req.body.city,
+      postal_code: req.body.zipCode,
+      state: req.body.state,
+      country: req.body.country,
+    }
+  })
+  .then(function(data){
+    console.log(data);
+  })
+
+  res.redirect('/')
 
 
-    getData(db,function(){
-      db.close();
-      next();
-    });
+});
+// router.post("/:robotsId/delete", function(req, res) {
+//   Robots.deleteOne({_id: req.params.robotsId}).then(function(robots){
+//     res.redirect("/");
+//   })
+// });
+//
+// router.get("/:robotsId/edit", function(req, res){
+//   Robots.findOne({_id: req.params.robotsId}).then(function(robots){
+//     res.render("edit", {robots: robots})
+//   })
+// });
 
-  });
-  let getData = function(db,callback) {
-    let users = db.collection("users");
+router.post("/edit/:{{id}}", function(req, res){
+  req.user.update({
+    username: req.body.username,
+    passwordHash: req.body.password,
+    name: req.body.name,
+    email: req.body.email,
+    university: req.body.university,
+    job: req.body.job,
+    company: req.body.company,
+    skills: req.body.skills,
+    phone: req.body.phone,
+    address:{
+      street_num: req.body.streetNum,
+      Street_name: req.body.streetName,
+      city: req.body.city,
+      state: req.body.state,
+      postal_code: req.body.zipCode,
+      country: req.body.country,
+    }
 
-    users.find({}).toArray().then(function(users){
-      data = users;
-      callback();
-    });
-  };
 
-};
-router.get("/", getListing, function (req,res) {
+  }).then(function(data){
+    console.log("catch");
+    console.log(req.user);
+  })
+  .catch(function(err) {
+    console.log(err);
+  })
+
+  res.redirect("/")
+});
+
+router.get("/edit/:id", function(req, res){
+
+  res.render("profile")
+})
+
+///////////////////////////////////////////////////////////
+
+router.get("/",  function (req,res) {
   res.render("index", {users:data})
 
 });
-router.get('/employed', getListing, function(req, res) {
-  // let job = req.params.job;
+router.get('/employed',  function(req, res) {
+  let job = req.params.job;
   let employed = [];
   data.forEach(function(user) {
     if (user.job != null) {
@@ -48,8 +129,8 @@ router.get('/employed', getListing, function(req, res) {
 });
 
 
-router.get('/looking', getListing, function(req, res) {
-  // let job = req.params.job;
+router.get('/looking',  function(req, res) {
+  let job = req.params.job;
   let looking = [];
   data.forEach(function(user) {
   if (user.job == null) {
@@ -62,16 +143,79 @@ router.get('/looking', getListing, function(req, res) {
 
 
 
-router.get('/listing/:id', getListing, function(req, res) {
+router.get('/profile/:id',  function(req, res) {
   let id = req.params.id;
-  let userToRender;
+
+  let listing = [];
   data.forEach(function(user) {
     if (user.id == id) {
-      userToRender = user;
+      listing.push(user);
+
     }
   });
+  console.log(listing);
 
-  res.render('listing', {users: userToRender});
+  res.render('profile', {users: listing});
+});
+
+
+///////////////////////////////////////////////////
+const requireLogin = function (req, res, next) {
+  if (req.user) {
+    console.log(req.user)
+    next()
+  } else {
+    res.redirect('/');
+  }
+};
+
+const login = function (req, res, next) {
+  if (req.user) {
+    res.redirect("/profile")
+  } else {
+    next();
+  }
+};
+
+router.get("/", login, function(req, res) {
+
+
+  res.render("singup", {
+      messages: res.locals.getMessages()
+  });
+});
+
+router.post('/', passport.authenticate('local', {
+    successRedirect: '/profile',
+    failureRedirect: '/',
+    failureFlash: true
+}));
+
+router.get("/signup", function(req, res) {
+  res.render("signup");
+});
+
+router.post("/signup", function(req, res) {
+  Robots.create({
+    username: req.body.username,
+    password: req.body.password
+  }).then(function(data) {
+    console.log(data);
+    res.redirect("/");
+  })
+  .catch(function(err) {
+    console.log(err);
+    res.redirect("/signup");
+  });
+});
+
+router.get("/profile", requireLogin, function(req, res) {
+  res.render("profile", {username: req.user.username});
+});
+
+router.get("/logout", function(req, res) {
+  req.logout();
+  res.redirect("/");
 });
 
 

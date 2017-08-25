@@ -1,0 +1,24 @@
+<div >
+  <form  action="/edit{{_id}}" method="post">
+    {{#allRobots}}
+    <input type="text" name="username"      placeholder="username">
+    <input type="password" name="password"   placeholder="password">
+    <input type="text" name="name"           placeholder="name">
+    <input type="text" name="email"          placeholder="email">
+    <input type="text" name="job"            placeholder="job">
+    <input type="text" name="university"     placeholder="university">
+    <input type="text" name="company"        placeholder="company">
+    <input type="text" name="skills"         placeholder="skills">
+    <input type="text" name="phone"          placeholder="phone">
+    {{#address}}
+    <input type="text" name="streetNum"       placeholder="street">
+    <input type="text" name="streetName"                placeholder="street-name">
+    <input type="text" name="city"            placeholder="city">
+    <input type="text" name="zip"             placeholder="zipCode">
+    <input type="text" name="state"           placeholder="state">
+    <input type="text" name="country"         placeholder="country">
+    {{/address}}
+  <button type="submit" name="button" value="{{_id}}">Submit</button>
+    {{/allRobots}}
+  </form>
+</div>
